@@ -1,5 +1,5 @@
-#include "pch.hpp"
-#include "cone.hpp"
+#include "og_pch.hpp"
+#include "Cone.hpp"
 
 namespace og
 {

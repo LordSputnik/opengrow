@@ -1,5 +1,5 @@
-#include "pch.hpp"
-#include "sphere.hpp"
+#include "og_pch.hpp"
+#include "Sphere.hpp"
 
 namespace og
 {

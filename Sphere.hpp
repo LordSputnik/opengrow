@@ -1,7 +1,7 @@
 #ifndef _OG_SPHERE_H_
 #define _OG_SPHERE_H_
 
-#include "box.hpp"
+#include "Box.hpp"
 
 namespace og
 {
