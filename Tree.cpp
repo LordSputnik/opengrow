@@ -1,25 +1,36 @@
 #include "og_pch.hpp"
 #include "Tree.hpp"
 
-Tree(const TreeDesc & desc, World* const world) :
-  desc_(desc),
-  world_(world)
+namespace og
 {
-
-}
-
-void Grow()
-{
-  for(BranchPtr & ptr : active_branches_)
+  Tree::Tree(const TreeDesc & desc, World & world) :
+    desc_(desc),
+    world_(world),
+    mgr_(nullptr)
   {
-    ptr->Grow();
+    split_error.resize(desc_.max_levels,0.0f);
+
+    BranchPtr ptr(new Branch(*this, world_, *desc_.levels[0]));
+
+    branches_.push_back(ptr);
+    active_branches_.push_back(ptr);
   }
-}
 
-Branch* CreateBranch(Branch* const parent)
-{
-  BranchPtr ptr(new Branch());
+  void Tree::Grow()
+  {
+    for(BranchPtr & ptr : active_branches_)
+    {
+      ptr->Grow();
+      ptr->UpdateMesh(mgr_);
+    }
+  }
 
-  branches_.push_back(ptr);
-  active_branches_.push_back(ptr);
+  Branch* Tree::CreateBranch(const Branch & parent)
+  {
+    BranchPtr ptr(new Branch(*this, world_, (*desc_.levels[parent.level()+1]), parent));
+    ptr->CreateMesh(mgr_);
+
+    branches_.push_back(ptr);
+    active_branches_.push_back(ptr);
+  }
 }

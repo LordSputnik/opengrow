@@ -57,6 +57,7 @@ namespace og
     base_ += diff;
 
     bounds_.Translate(diff);
+    CalcContainedPoints();
   }
 
   void Cone::Update(const vec3f & apex, const vec3f & dir, bool normalize)
@@ -69,6 +70,7 @@ namespace og
 
       base_ = apex_ + ( dir_ * height_ );
       CreateBB();
+      CalcContainedPoints();
   }
 
   void Cone::CreateBB()

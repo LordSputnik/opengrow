@@ -8,6 +8,7 @@ namespace og
       radius_(radius)
   {
     bounds_.FromCentreHalf ( centre_, vec3f ( radius_, radius_, radius_ ) );
+    CalcContainedPoints();
   }
 
   bool Sphere::isPointInside(const vec3i & point) const

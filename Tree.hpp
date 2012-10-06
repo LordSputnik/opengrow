@@ -17,12 +17,27 @@ namespace og
        * @param desc The tree description to use to grow the tree.
        * @param world The world in which to grow.
        */
-      Tree(const TreeDesc & desc, World* const world);
+      Tree(const TreeDesc & desc, World & world);
 
       /**
        * Iterates through all the active branches and tells them to grow.
        */
       void Grow();
+
+      std::string species()
+      {
+        return desc_.species;
+      }
+
+      uint16_t branches()
+      {
+        return branches_.size();
+      }
+
+      void SetOgreSceneManager(Ogre::SceneManager* mgr)
+      {
+        mgr_ = mgr;
+      }
 
     protected:
       /**
@@ -30,7 +45,9 @@ namespace og
        * list of active branches.
        * @param parent The branch off of which the new branch will grow.
        */
-      Branch* CreateBranch(Branch* const parent);
+      Branch* CreateBranch(const Branch & parent);
+
+      std::vector<float> split_error;
 
     private:
       const TreeDesc & desc_;
@@ -38,7 +55,9 @@ namespace og
       std::vector<BranchPtr> branches_;
       std::list<BranchPtr> active_branches_;
 
-      World* const world_; /// A constant pointer to the world to grow in.
+      World & world_; /// A constant pointer to the world to grow in.
+
+      Ogre::SceneManager* mgr_;
   };
 }
 

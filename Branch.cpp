@@ -1,75 +1,166 @@
 #include "og_pch.hpp"
 #include "Branch.hpp"
+#include "Tree.hpp"
 
 namespace og
 {
-  Branch::Branch(Tree & creator, World & world, BranchDesc & desc, Branch* parent) :
+  uint32_t Branch::branch_count_ = 0;
+
+  Branch::Branch(Tree & creator, World & world, BranchDesc & desc) :
     creator_(creator),
     world_(world),
     desc_(desc),
-    parent_(parent),
+    parent_(nullptr),
     growing_(true),
-    transform_(parent->transform()),
-    dir_(transform_vector(parent->transform(), vec3f(0.0f,1.0f,0.0f))),
-
+    transform_(cml::identity_3x3()),
+    bud_pos_(cml::zero_3D()),
+    bud_dir_(cml::y_axis_3D()),
+    bud_sample_zone_(cml::zero_3D(), cml::y_axis_3D(), 0.3f, 45.0f, 0.1f),
+    bud_exclusion_zone_(cml::zero_3D(), 0.1f),
+    level_(0),
+    mesh_created(false)
   {
+    SetBranchAttributes();
+    ++branch_count_;
 
+    std::stringstream os;
+    os << branch_count_;
+    id_string_ = os.str();
+  }
+
+  Branch::Branch(Tree & creator, World & world, BranchDesc & desc, const Branch & parent) :
+    creator_(creator),
+    world_(world),
+    desc_(desc),
+    parent_(&parent),
+    growing_(true),
+    transform_(parent.transform()),
+    bud_pos_(parent.bud_pos()),
+    bud_dir_(transform_vector(parent.transform(),cml::y_axis_3D())),
+    bud_sample_zone_(bud_pos_, bud_dir_, 0.3f, 45.0f, 0.1f),
+    bud_exclusion_zone_(bud_pos_, 0.1f),
+    level_(parent.level()+1),
+    mesh_created(false)
+  {
+    SetBranchAttributes();
+    ++branch_count_;
+
+    std::stringstream os;
+    os << branch_count_;
+    id_string_ = os.str();
+  }
+
+  void Branch::CreateMesh(Ogre::SceneManager* mgr)
+  {
+    Ogre::ManualObject* mo = mgr->createManualObject ("TreeSkeleton"+id_string_);
+    mo->estimateVertexCount(100);
+    mo->setDynamic(true);
+    mo->begin("", Ogre::RenderOperation::OT_LINE_STRIP);
+
+    mo->position( Ogre::Vector3::ZERO );
+
+    mo->end();
+
+    mgr->getRootSceneNode()->createChildSceneNode()->attachObject(mo);
+
+    mesh_created = true;
+  }
+
+  void Branch::UpdateMesh(Ogre::SceneManager* mgr)
+  {
+    if(mesh_created == false)
+      CreateMesh(mgr);
+
+    Ogre::ManualObject* mo = mgr->getManualObject("TreeSkeleton"+id_string_);
+
+    mo->beginUpdate(0);
+
+    for(const vec3f & v : segments_)
+    {
+      mo->position(v[0],v[1],v[2]);
+    }
+
+    mo->end();
+  }
+
+  void Branch::Split(const uint8_t num_splits)
+  {
+    if ( level_ >= creator_.desc_.max_levels - 1 )
+      return;
+
+    attribs_.split_angle = getRandomVariation ( desc_.mid.split_angle, desc_.var.split_angle );
+    attribs_.split_angle = std::min ( attribs_.split_angle, 80.0f );
+
+    float radial_angle = getRandomVariation( 180.0f, 180.0f );
+    float increment_angle = 360.0f / num_splits;
+
+    for(uint8_t i = 0; i != num_splits; ++i)
+    {
+      cml::matrix33f_c transform ( transform_ );
+      cml::matrix_rotate_about_local_y ( transform, cml::rad ( radial_angle ) );
+      cml::matrix_rotate_about_local_x ( transform, cml::rad ( attribs_.split_angle ) );
+
+      vec3f dir ( transform_vector ( transform, cml::y_axis_3D() ) );
+      creator_.CreateBranch(*this);
+      radial_angle += getRandomVariation ( increment_angle, increment_angle * 0.5f );
+    }
   }
 
   void Branch::Grow()
   {
-    if ( is_growing_ == false )
+    if ( growing_ == false )
       return;
 
     SetSegmentAttributes();
 
-    segment_.push_back ( bud_->Grow( cur_info_.segment_length ) );
+    segments_.push_back ( GetNextSegmentPos() );
 
-    if( branch_length_ < cur_info_.first_split )
+    if( branch_length_ < attribs_.first_split_distance )
       return;
 
     if( split_type_ == 1 )
     {
-      int splits = static_cast<int> ( cur_info_.split_frequency );
+      int splits = static_cast<int> ( attribs_.split_frequency );
       Split ( splits );
     }
     else if( split_type_ == 2 )
     {
-      int splits_i = static_cast<int> ( cur_info_.split_frequency + creator_->split_error(level_) + 0.5f);
+      int splits_i = static_cast<int> ( attribs_.split_frequency + creator_.split_error[level_] + 0.5f);
       float splits_f = static_cast<float> ( splits_i );
 
   #ifdef _DEBUG
       assert(splits_i >= 0);
   #endif
 
-      creator_->set_split_error(creator_->split_error(level_) + cur_info_.split_frequency - splits_f, level_);
+      creator_.split_error[level_] += attribs_.split_frequency - splits_f;
 
       Split ( splits_i );
     }
+
   }
 
   vec3f Branch::GetNextSegmentPos()
   {
-    bud_sample_zone_.Update(pos_, cml::normalize(dir_ - (cml::axis_3D(1) * attribs_.light_attraction)));
+    bud_sample_zone_.Update(bud_pos_, cml::normalize(bud_dir_ - (cml::axis_3D(1) * attribs_.light_attraction)));
 
-    vec3f growth_vector = CalculateGrowthVector(sample_zone_.contained_points());
+    vec3f growth_vector = CalculateGrowthVector(bud_sample_zone_.contained_points());
 
     cml::matrix33f_c rot = cml::identity_3x3();
-    cml::matrix_rotation_vec_to_vec( rot, dir_, growth_vector, true );
+    cml::matrix_rotation_vec_to_vec( rot, bud_dir_, growth_vector, true );
     transform_ = rot * transform_;
 
-    dir_ = growth_vector;
+    bud_dir_ = growth_vector;
     growth_vector *= attribs_.segment_length;
-    pos_ = growth_vector += pos_;
+    bud_pos_ = growth_vector += bud_pos_;
 
 //    PointRing ( pos_, transform_, 0.1f - (0.005f * segments++), 8 );
 
-    exclusion_zone_.centre(pos_);
+    bud_exclusion_zone_.centre(bud_pos_);
 
-    std::vector<vec3i> & p = exclusion_zone_.contained_points();
+    std::vector<vec3i> & p = bud_exclusion_zone_.contained_points();
     for(size_t i = 0, size = p.size(); i != size; ++i)
     {
-       env_->modified_points_[p[i]] = 0.0f;
+       world_.modified_points_[p[i]] = 0.0f;
     }
 
     return growth_vector;
@@ -80,19 +171,19 @@ namespace og
     vec3f growth_vector(cml::zero_3D());
     std::stack<vec3f> growth_samples;
 
-    getRandomVariation(desc_.mid.bud_growth_samples,desc_.var.bud_growth_samples);
+    attribs_.bud_growth_samples = getRandomVariation(desc_.mid.bud_growth_samples,desc_.var.bud_growth_samples);
 
-    for(uint16_t i = 0; i != num_growth_samples_; ++i)
+    for(uint16_t i = 0; i != attribs_.bud_growth_samples; ++i)
     {
       const vec3i & v = in[cml::random_integer(0, in.size() - 1)];
 
-      if(world_->modified_points_.find(v) == world_->modified_points_.end())
+      if(world_.modified_points_.find(v) == world_.modified_points_.end())
       {
-        growth_samples.push(intToFloatSpace(v) - position_);
+        growth_samples.push(intToFloatSpace(v) - bud_pos_);
       }
     }
 
-    while( in.empty() == false )
+    while( growth_samples.empty() == false )
     {
       growth_vector += growth_samples.top();
       growth_samples.pop();
@@ -139,7 +230,7 @@ namespace og
 
     if(fabs(attribs_.total_length) < 0.001f)
     {
-      is_growing_ = false;
+      growing_ = false;
     }
   }
 }
