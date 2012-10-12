@@ -1,0 +1,91 @@
+<tree>
+	<species>Willow</species>
+	
+	<max_levels>10</max_levels>
+
+	<data>
+		<base_splits>
+			<mid>1.0</mid>
+			<var>0.0</var>
+		</base_splits>
+		
+		<defaults>
+			<mid>
+				<geotropism>-0.9</geotropism>
+				<first_split>0.0</first_split>
+				<segment_length>0.3</segment_length>
+				<split_frequency>1.0</split_frequency>
+				<length>1.0</length>
+				<split_angle>70</split_angle>
+  			<bud_growth_samples>100</bud_growth_samples> <!-- This should be set much lower than 15k, as only 15k points are typically returned within the cone. -->
+			</mid>
+			
+			<var>
+				<geotropism>0.2</geotropism>
+				<first_split>0.0</first_split>
+				<segment_length>0.0</segment_length>
+				<split_frequency>0.0</split_frequency>
+				<length>0.0</length>
+				<split_angle>5</split_angle>
+  			<bud_growth_samples>0</bud_growth_samples>
+			</var>
+		</defaults>
+		
+		<levels>
+			<level id="0">
+				<mid>
+					<geotropism>-0.7</geotropism>
+					<first_split>0.7</first_split>
+					<segment_length>0.4</segment_length>
+					<split_frequency>3.0</split_frequency>
+					<length>4.0</length>
+	  			<bud_growth_samples>1000</bud_growth_samples>
+	  			<split_angle>90</split_angle>
+				</mid>
+				
+				<var>
+					<geotropism>0.0</geotropism>
+					<first_split>0.01</first_split>
+					<segment_length>0.05</segment_length>
+					<split_frequency>0.1</split_frequency>
+					<length>0.2</length>
+				</var>
+			</level>
+			
+			<level id="1">
+				<mid>
+					<geotropism>-0.0</geotropism>
+					<segment_length>0.1</segment_length>
+					<split_frequency>1.0</split_frequency>
+					<length>2.0</length>
+	  			<bud_growth_samples>100</bud_growth_samples>
+				</mid>
+				
+				<var>
+					<geotropism>0.0</geotropism>
+					<segment_length>0.02</segment_length>
+					<split_frequency>0.1</split_frequency>
+					<length>0.1</length>
+				</var>
+			</level>
+			
+			<level id="2">
+				<mid>
+					<geotropism>-0.0</geotropism>
+					<segment_length>0.02</segment_length>
+					<split_frequency>0.0</split_frequency>
+					<split_angle>0</split_angle>
+					<length>2.0</length>
+				</mid>
+				
+				<var>
+					<geotropism>0.1</geotropism>
+					<segment_length>0.01</segment_length>
+					<split_frequency>0.0</split_frequency>
+					<length>0.1</length>
+				</var>
+			</level>
+		</levels>
+    </data>
+
+</tree>

@@ -26,6 +26,8 @@ namespace og
     std::stringstream os;
     os << branch_count_;
     id_string_ = os.str();
+
+    segments_.push_back(bud_pos_);
   }
 
   Branch::Branch(Tree & creator, World & world, BranchDesc & desc, const Branch & parent) :
@@ -48,6 +50,8 @@ namespace og
     std::stringstream os;
     os << branch_count_;
     id_string_ = os.str();
+
+    segments_.push_back(bud_pos_);
   }
 
   void Branch::CreateMesh(Ogre::SceneManager* mgr)
@@ -61,7 +65,7 @@ namespace og
 
     mo->end();
 
-    mgr->getRootSceneNode()->createChildSceneNode()->attachObject(mo);
+    mgr->getSceneNode("Model")->createChildSceneNode()->attachObject(mo);
 
     mesh_created = true;
   }

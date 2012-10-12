@@ -1,0 +1,87 @@
+<tree>
+	<species>Willow</species> <!-- The species of the tree - mostly just used as an identifier -->
+
+	<max_levels>3</max_levels> <!-- The maximum number of levels of branches to create. For example, a value of 1 here grows only the top level of branches - ie. the trunk. A value of two would grow the trunk and main branches -->
+
+	<data>
+		<base_splits> <!-- The number of splits at the base of the tree; how many trunks the tree has -->
+			<mid>1.0</mid>
+			<var>0.0</var>
+		</base_splits>
+		
+		<defaults>
+			<mid> <!-- The midpoint (average) values for the parameters ofeach branch -->
+				<geotropism>-0.9</geotropism> <!-- How likely the default branch is to grow towards the sky. Value of 1 means that the branch is strongly attracted downwards, value of -1 means branch is strongly attracted upwards. Usually, this will be a negative value! -->
+				<first_split>0.0</first_split> <!-- Indicates the length at which the branch can start splitting into new branches -->
+				<segment_length>0.1</segment_length> <!-- The length of each straight segment of the branch. Lower numbers will result in more splits and a higher branch resolution. Adjustment of the split frequency will be necessary. -->
+				<split_frequency>1.0</split_frequency> <!-- The number of times, on average, the branch is likely to split per segment -->
+				<length>1.0</length> <!-- The total length of the branch -->
+				<split_angle>70</split_angle> <!-- The angle at which a new branch will split from its parent branch. The angle of the "V" formed by the two branches. -->
+  			<bud_growth_samples>100</bud_growth_samples> <!-- This should be set much lower than 15k, as only 15k points are typically returned within the cone. -->
+			</mid>
+			
+			<var> <!-- The variation in each parameter of the branch - a value of 0.1 indicates the parameter can be bigger or smaller than the midpoint value by 0.1 -->
+				<geotropism>0.2</geotropism>
+				<first_split>0.0</first_split>
+				<segment_length>0.0</segment_length>
+				<split_frequency>0.0</split_frequency>
+				<length>0.0</length>
+				<split_angle>5</split_angle>
+  			<bud_growth_samples>0</bud_growth_samples>
+			</var>
+		</defaults>
+		
+		<levels>
+			<level id="0">
+				<mid>
+					<geotropism>-0.7</geotropism>
+					<first_split>0.5</first_split>
+					<segment_length>0.2</segment_length>
+					<split_frequency>2.0</split_frequency>
+					<length>4.0</length>
+				</mid>
+				
+				<var>
+					<geotropism>0.0</geotropism>
+					<first_split>0.1</first_split>
+					<segment_length>0.05</segment_length>
+					<split_frequency>0.1</split_frequency>
+					<length>0.2</length>
+				</var>
+			</level>
+			
+			<level id="1">
+				<mid>
+					<geotropism>-0.1</geotropism>
+					<segment_length>0.1</segment_length>
+					<split_frequency>1.0</split_frequency>
+					<length>2.0</length>
+				</mid>
+				
+				<var>
+					<geotropism>0.0</geotropism>
+					<segment_length>0.05</segment_length>
+					<split_frequency>0.1</split_frequency>
+					<length>0.1</length>
+				</var>
+			</level>
+			
+			<level id="2">
+				<mid>
+					<geotropism>-0.1</geotropism>
+					<segment_length>0.05</segment_length>
+					<split_frequency>0.0</split_frequency>
+					<length>0.5</length>
+				</mid>
+				
+				<var>
+					<geotropism>0.1</geotropism>
+					<segment_length>0.01</segment_length>
+					<split_frequency>0.0</split_frequency>
+					<length>0.1</length>
+				</var>
+			</level>
+		</levels>
+    </data>
+
+</tree>

@@ -54,6 +54,8 @@ namespace og
 
       std::vector<BranchPtr> branches_;
       std::list<BranchPtr> active_branches_;
+      std::list<BranchPtr>::iterator next_to_grow;
+      std::queue<BranchPtr> branch_add_queue_;
 
       World & world_; /// A constant pointer to the world to grow in.
 

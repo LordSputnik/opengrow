@@ -10,9 +10,23 @@ namespace og
 {
   class Tree;
 
+  /**
+   * The branch class represents a single branch of the tree. It maintains a list of the
+   * points at the start and end of each segment, and its purpose is mainly to calculate
+   * the next segment split point. In the future, it will also hold a series of segment
+   * rings, which will be used to render a complete mesh for the tree.
+   */
   class Branch
   {
     public:
+      /**
+      * Constructor. Creates a branch with no parent, at the origin. Used for the first
+      * branch in the tree.
+      * @param creator The tree that the branch is a part of.
+      * @param world The world in which the tree is growing.
+      * @param desc The branch description to use to grow the branch.
+      * @param parent The larger branch that this branch is growing from.
+      */
       Branch(Tree & creator, World & world, BranchDesc & desc);
       Branch(Tree & creator, World & world, BranchDesc & desc, const Branch & parent);
 

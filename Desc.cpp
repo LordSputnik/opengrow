@@ -88,7 +88,7 @@ namespace og
   {
     species = tree_root.child_value("species");
 
-    max_levels = StrToStd<uint8_t>(tree_root.child_value("max_levels"));
+    max_levels = static_cast<uint8_t>(StrToStd<uint32_t>(tree_root.child_value("max_levels"))); //Need to interpret as int then cast, otherwise it's read as ASCII char.
 
     // Allocate memory to hold the midpoint and variation for the values in each branch level.
     levels.resize(max_levels);

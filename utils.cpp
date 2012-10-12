@@ -32,7 +32,7 @@ float getRandomVariation(float centre, float variation)
 
 int getRandomVariation(int centre, int variation)
 {
-  if(variation = 0)
+  if(variation == 0)
     return centre;
 
   return cml::random_integer ( centre - variation, centre + variation );
