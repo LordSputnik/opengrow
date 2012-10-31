@@ -123,6 +123,10 @@ namespace og
       */
       vec3f CalculateGrowthVector(const std::vector<vec3i> & in);
 
+      /**
+      * Creates one or more new branches at the current bud position.
+      * @param num_splits The number of new branches to create. Should be greater than 0.
+      */
       void Split(const uint8_t num_splits);
 
       void SetBranchAttributes();
